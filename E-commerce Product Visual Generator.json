@@ -1,0 +1,433 @@
+{
+  "name": "E-commerce Product Visual Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Try It Out!\n### Automatically generate professional product images when new products are added to your Shopify store.\n\nThis workflow uses AI to create optimized image generation prompts and produces both styled hero images and transparent PNGs for your product catalog.\n\n### How it works\n1. **Shopify Trigger** detects new product creation\n2. **Edit Fields** extracts category and tags for context\n3. **AI Agent** analyzes product data and uses the deAPI Prompt Booster tool to create an optimized image prompt\n4. **deAPI Generate** creates a professional product image\n5. **deAPI Remove Background** produces a transparent PNG version\n6. **Shopify Update** uploads both images to the product\n\n### Requirements\n- [deAPI](https://deapi.ai) account for image generation\n- Required Shopify scopes: `read_products`, `write_products`, `write_files`\n- Shopify webhook URL must be **HTTPS**\n- Anthropic account for AI Agent\n\n### Need Help?\nJoin the [n8n Discord](https://discord.gg/n8n) or ask in the [Forum](https://community.n8n.io/)!\n\nHappy Automating!",
+        "height": 700,
+        "width": 652
+      },
+      "id": "f2a72f6d-5e9e-4282-822d-ef9eea15f9d8",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 1. Shopify Product Trigger\n[Read more about Shopify Trigger](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.shopifytrigger)\n\nListens for `products/create` webhook events from your Shopify store. When a new product is added, the workflow automatically starts processing.",
+        "height": 428,
+        "width": 316,
+        "color": 7
+      },
+      "id": "a1c541ee-bad2-43cf-b5d2-509b3417a1e6",
+      "name": "Sticky Note - Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        768
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 2. Extract Product Data\nPrepares product information for the AI Agent:\n\n- **category**: From `category.name` (e.g., \"Duffel Bags\")\n- **tags**: Product attributes (e.g., \"leather, premium, handmade\")\n\nThese provide visual context for image generation.",
+        "height": 428,
+        "width": 308,
+        "color": 7
+      },
+      "id": "0df8dc93-950d-4eb9-958a-97078f1810b3",
+      "name": "Sticky Note - Edit Fields",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 3. AI-Powered Prompt Generation\n[Read more about AI Agents](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent)\n\nThe AI Agent analyzes product data and uses the **deAPI Image Prompt Booster** tool to create optimized prompts for professional product photography.\n\nThe **Structured Output Parser** ensures consistent JSON output.",
+        "height": 732,
+        "width": 464,
+        "color": 7
+      },
+      "id": "a293a59b-6b66-4b2b-bd39-12a14022ea99",
+      "name": "Sticky Note - AI Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 4. Generate Product Image\n[deAPI Documentation](https://docs.deapi.ai)\n\nGenerates a professional product image using the AI-boosted prompt.\n\nOutput includes binary image data ready for the next step.",
+        "height": 444,
+        "width": 364,
+        "color": 7
+      },
+      "id": "7d2e102c-e72b-4fe6-8df3-fad48ccd5c6e",
+      "name": "Sticky Note - Generate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 5. Remove Background\nCreates a transparent PNG version of the product image.\n\nIdeal for:\n- Product catalogs\n- Custom backgrounds\n- Marketing materials",
+        "height": 460,
+        "width": 348,
+        "color": 7
+      },
+      "id": "f01913c3-5163-4cbe-845c-46e0eeaf1a3a",
+      "name": "Sticky Note - Remove BG",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 6. Update Product Images\n[Read more about Shopify node](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.shopify)\n\nUploads both images to Shopify:\n- **Position 1** (main): Styled hero image\n- **Position 2** (alt): Transparent PNG",
+        "height": 460,
+        "width": 328,
+        "color": 7
+      },
+      "id": "bf99bb36-2067-406e-86f8-60f199324e3a",
+      "name": "Sticky Note - Update",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "products/create"
+      },
+      "id": "07eccd97-7240-4ea7-87fb-b3a44d04eaea",
+      "name": "Shopify Trigger",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "position": [
+        -624,
+        1024
+      ],
+      "webhookId": "shopify-product-webhook",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a product image prompt for:\n\nTitle: {{ $json.title }}\nDescription: {{ $json.body_html }}\n{{ $json.category }}: {{ $json.tags }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a product photography expert. Create a prompt for generating a professional e-commerce product image.\n\nProduct\n  Title: {{ $json.title }}\nDescription: {{ $json.body_html }}\n{{ $json.category }}: {{ $json.tags }}\n\nUse the imagePromptBooster tool to enhance your prompt. Return only the boosted prompt."
+        }
+      },
+      "id": "2445bb8c-7dcf-468a-a200-4bf3bb514b3a",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        128,
+        1024
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"boosted_prompt\": \"professional product photo of...\"\n}"
+      },
+      "id": "c7bc50be-1ddf-4784-83ec-c038544c3d94",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        336,
+        1280
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "prompt": "={{ $json.output.boosted_prompt }}",
+        "options": {}
+      },
+      "id": "9beb8298-8069-40e8-806a-2466be1d05b1",
+      "name": "deAPI Generate Image",
+      "type": "n8n-nodes-deapi.deapi",
+      "position": [
+        656,
+        1024
+      ],
+      "webhookId": "e1ea6470-841a-45a2-be2d-00ee48c0740e",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {},
+        "operation": "removeBackground"
+      },
+      "id": "8e2e3000-a32b-431b-bb9c-8012e80321ee",
+      "name": "deAPI Remove Background",
+      "type": "n8n-nodes-deapi.deapi",
+      "position": [
+        1072,
+        1024
+      ],
+      "webhookId": "d200dfdf-c274-40b6-add6-0ac5253a65a9",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "update",
+        "productId": "={{ $('Shopify Trigger').item.json.id }}",
+        "updateFields": {
+          "images": [
+            {
+              "src": "={{ $('deAPI Generate Image').item.json.result_url }}"
+            },
+            {
+              "src": "={{ $json.result_url }}"
+            }
+          ]
+        }
+      },
+      "id": "fcadf150-71ee-4624-98dc-ebeec3e456d6",
+      "name": "Shopify Update Product",
+      "type": "n8n-nodes-base.shopify",
+      "position": [
+        1472,
+        1024
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "prompt": "={{ $fromAI('Prompt', ``, 'string') }}",
+        "options": {},
+        "resource": "prompt"
+      },
+      "id": "87eea433-1fae-48a6-920c-1288ef4e5f68",
+      "name": "Image prompt booster in deAPI",
+      "type": "n8n-nodes-deapi.deapiTool",
+      "position": [
+        208,
+        1280
+      ],
+      "webhookId": "bae24664-6f96-4c3e-848b-c2fc2c732d31",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "id": "6561800b-39c7-4a83-9d95-8c8eed91d6f8",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        64,
+        1280
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "789000bb-0352-462d-8935-682c52a5f6fa",
+              "name": "category",
+              "type": "string",
+              "value": "={{ $json.category.name }}"
+            },
+            {
+              "id": "217357ac-55a7-4884-890e-be2b58f01651",
+              "name": "tags",
+              "type": "string",
+              "value": "={{ $json.tags }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "title, body_html",
+        "options": {}
+      },
+      "id": "9efe4398-2b4c-48a5-ac4f-e97225dc33b9",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -272,
+        1024
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "## Styled hero image\n![](https://res.cloudinary.com/dsmonpqk2/image/upload/f_auto,q_auto/v1772018279/SXwV7aOwQRgLoV48OyOKdEDmqTUnR7fANRXzd7DN_kdypx0.png#full-width)",
+        "height": 524,
+        "width": 480
+      },
+      "id": "7450522f-87b2-438c-a0df-ad779e54a44b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Transparent PNG\n![](https://res.cloudinary.com/dsmonpqk2/image/upload/f_auto,q_auto/v1772018280/xY5qVwrMQhjQtWKbKdvv6B1ySK8RKBUVHukDVVgL_dlpdzr.png#full-width)",
+        "height": 524,
+        "width": 480
+      },
+      "id": "1c32fc3a-7a1d-407c-a537-0fe5527f4c88",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        1296
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Example product details from Shopify\n- **Title:** Classic Leather Weekend Bag\n- **Description:** Handcrafted from premium full-grain leather, this weekend bag combines timeless style with modern functionality. Features include a spacious main compartment, padded laptop sleeve, and brass hardware. Perfect for short trips or daily commutes.\n    - **Dimensions:** 20\\\" x 12\\\" x 10\\\"\n    - **Material:** Full-grain vegetable-tanned leather\n    - **Interior:** Cotton twill lining\n- **Category:** Duffel Bags\n- **Tags:** handmade, leather, premium, travel, weekend",
+        "height": 524,
+        "width": 480
+      },
+      "id": "2440a6a9-e8e8-4212-b4a4-38531b1a60b5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        768
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "deAPI Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deAPI Generate Image": {
+      "main": [
+        [
+          {
+            "node": "deAPI Remove Background",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deAPI Remove Background": {
+      "main": [
+        [
+          {
+            "node": "Shopify Update Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image prompt booster in deAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dd6793d1-7135-4cdf-b4c4-77643e788d53",
+  "meta": {
+    "instanceId": "9d0315f4249c204877e0fc1cfcd7bbd454fde4019f2cb08e6ff004fb8e5caf81"
+  },
+  "nodeGroups": [],
+  "id": "F7JscExFWO71zHw5",
+  "tags": []
+}
